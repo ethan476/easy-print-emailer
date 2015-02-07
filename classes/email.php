@@ -112,7 +112,7 @@ class Email
 	{
 		$headers = array(
 			'To'	=> $to,
-			'Subject'	=> $this->smtp_config['subject'];
+			'Subject'	=> $this->smtp_config['subject'],
 			'From'	=> $this->smtp_config['from']
 		);
 
