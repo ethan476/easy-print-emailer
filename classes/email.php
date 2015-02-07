@@ -41,12 +41,13 @@ class Email
 	/*
 	*
 	*/
-	private function construct_txt_body()
+	private function construct_txt_body($printers_down)
 	{
-		$body .= 'There ' . (($number_down == 1) ? 'is ' : 'are ') . $number_down . ' printer' . (($number_down == 1) ? ' ' : 's ') . 'down.';
+		$number_down = count($printers_down);
+		$body = 'There ' . (($number_down == 1) ? 'is' : 'are') . ' currently ' . $number_down . ' printer' . (($number_down == 1) ? ' ' : 's ') . "down.\r\n";
 
 		foreach($printers_down as $printer) {
-			$body .= $printer['cups_name'] . ' (<a href="http://' . $printer['ip'] . '">' . $printer['ip'] . '</a>)\r\n';
+			$body .= str_replace('Woodlawn - ', '', $printer['display_name']) . ' (<a href="http://' . $printer['ip'] . '">' . $printer['ip'] . '</a>) - ' . $printer['full_status'] . "\r\n";
 		}
 
 		$this->txt_body_string = $body;
@@ -55,14 +56,15 @@ class Email
 	/**
 	*
 	*/
-	private function construct_html_body()
+	private function construct_html_body($printers_down)
 	{
-		$body .= 'There ' . (($number_down == 1) ? 'is ' : 'are ') . $number_down . ' printer' . (($number_down == 1) ? ' ' : 's ') . 'down.';
+		$number_down = count($printers_down);
+		$body = 'There ' . (($number_down == 1) ? 'is' : 'are') . ' currently '  . $number_down . ' printer' . (($number_down == 1) ? ' ' : 's ') . 'down.';
 		
 		$body .= '<ol>';
 
 		foreach($printers_down as $printer) {
-			$body .= '<li>' . $printer['cups_name'] . ' (<a href="http://' . $printer['ip'] . '">' . $printer['ip'] . '</a>)' . '</li>';
+			$body .= '<li>' . str_replace('Woodlawn - ', '', $printer['display_name']) . ' (<a href="http://' . $printer['ip'] . '">' . $printer['ip'] . '</a>) - ' . $printer['full_status']. '</li>';
 		}
 
 		$body .= '</ol>';
@@ -76,8 +78,6 @@ class Email
 	public function construct_body($itc, $printers_down)
 	{
 		$this->smtp_config['subject'] = 'Good Morning, ' . $itc['first_name'];
-		$number_down = count($printers_down);
-
 
 		$mime = new Mail_mime($this->crlf); 
 
@@ -85,7 +85,7 @@ class Email
 		$html_body = 'Good morning, ' . $itc['first_name'] . '.<br><br>';
 
 		if (!isset($this->html_body_string)) {
-			$this->construct_html_body();
+			$this->construct_html_body($printers_down);
 		}
 
 		$html_body .= $this->html_body_string;
@@ -97,12 +97,14 @@ class Email
 		$txt_body = 'Good morning, ' . $itc['first_name'] . '.\r\n\r\n';
 
 		if (!isset($this->txt_body_string)) {
-			$this->construct_txt_body();
+			$this->construct_txt_body($printers_down);
 		}
 
 		$txt_body .= $this->txt_body_string;
 
 		$mime->setTXTBody($txt_body);
+
+		return $mime;
 	}
 
 	/**
@@ -124,12 +126,6 @@ class Email
 	*/
 	public function send($to, $mime)
 	{
-		$mail = $this->smtp->send($to, $mime->headers($this->construct_headers($to)), $mime->get());		
-		
-		if (PEAR::isError($mail)) {
-			echo $mail->getMessage() . '\n';
-		} else {
-			echo 'Successfully sent Easy Print report to \'' . $to . "\'\n";
-		}
+		return $this->smtp->send($to, $mime->headers($this->construct_headers($to)), $mime->get());		
 	}
 }
