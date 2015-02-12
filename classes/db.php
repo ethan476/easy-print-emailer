@@ -47,7 +47,7 @@ class DB
 	public function get_itcs()
 	{
 		try {
-			$stmt = $this->pdo->query("SELECT * FROM `itcs`");
+			$stmt = $this->pdo->query("SELECT * FROM `itcs` WHERE `enabled` = 1");
 			return $stmt->fetchAll(PDO::FETCH_ASSOC);
 		} catch(PDOException $ex) {
 			echo $ex->getMessage() . '\n';

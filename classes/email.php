@@ -38,7 +38,23 @@ class Email
 
 	}
 
-	/*
+	/**
+	*
+	*/
+	public function get_greeting()
+	{
+		$hour = date('G');
+		
+		if ($hour >= 5 && $hour <= 11) {
+			return "Good Morning";
+		} else if ($hour >= 12 && $hour <= 18) {
+			return "Good Afternoon"; 
+		} else if ($hour >= 19 || $hours <= 4) {
+			return "Good Evening";
+		}	
+	}
+
+	/**
 	*
 	*/
 	private function construct_txt_body($printers_down)
@@ -77,12 +93,12 @@ class Email
 	*/
 	public function construct_body($itc, $printers_down)
 	{
-		$this->smtp_config['subject'] = 'Good Morning, ' . $itc['first_name'];
+		$this->smtp_config['subject'] = $this->get_greeting() . ', ' . $itc['first_name'];
 
 		$mime = new Mail_mime($this->crlf); 
 
 		/* HTML */
-		$html_body = 'Good morning, ' . $itc['first_name'] . '.<br><br>';
+		$html_body = $this->get_greeting() . ', ' . $itc['first_name'] . '.<br><br>';
 
 		if (!isset($this->html_body_string)) {
 			$this->construct_html_body($printers_down);
@@ -94,7 +110,7 @@ class Email
 
 
 		/* TXT */
-		$txt_body = 'Good morning, ' . $itc['first_name'] . '.\r\n\r\n';
+		$txt_body = $this->get_greeting() . ', ' . $itc['first_name'] . '.\r\n\r\n';
 
 		if (!isset($this->txt_body_string)) {
 			$this->construct_txt_body($printers_down);
@@ -110,7 +126,7 @@ class Email
 	/**
 	*
 	*/
-	public function construct_headers($to)
+	private function construct_headers($to)
 	{
 		$headers = array(
 			'To'	=> $to,

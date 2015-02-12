@@ -3,6 +3,11 @@
 require 'classes/db.php';
 require 'classes/email.php';
 
+function logger($str)
+{
+	echo "[" . date("Y-m-d H:i:s") . "]: " . $str . "\n";
+}
+
 $db = new DB();
 $email = new Email();
 
@@ -18,8 +23,8 @@ for($i = 0; $i < $number_of_itcs; $i++) {
 
 	if (PEAR::isError($mail)) {
 		//echo $mail->getMessage() . "\n";
-		echo "Failed to send Easy Print Report to: '" . $itcs[$i]['email'] . "' (" . ($i + 1) . "/" . $number_of_itcs . ")\n";
+		logger("Failed to send Easy Print Report to: '" . $itcs[$i]['email'] . "' (" . ($i + 1) . "/" . $number_of_itcs . ")");
 	} else {
-		echo "Successfully sent Easy Print Report to: '" . $itcs[$i]['email'] . "' (" . ($i + 1) . "/" . $number_of_itcs . ")\n";
+		logger("Successfully sent Easy Print Report to: '" . $itcs[$i]['email'] . "' (" . ($i + 1) . "/" . $number_of_itcs . ")");
 	}
 }
